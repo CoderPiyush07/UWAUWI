@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -6,16 +7,31 @@ const multer = require('multer');
 const path = require('path');
 const WebSocket = require('ws');
 const http = require('http');
+const session = require('express-session');
+const passport = require('passport');
+
+// Import configuration
+const configurePassport = require('./config/passport');
 
 // Import routes
 const uploadRoutes = require('./routes/upload');
 const convertRoutes = require('./routes/convert');
+const authRoutes = require('./routes/auth');
+
+// Import middleware
+const { addUserContext, optionalAuthentication } = require('./middleware/auth');
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const PORT = process.env.PORT || 3000;
+
+// Validate required environment variables
+if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+  console.warn('Warning: GitHub OAuth credentials not configured. Please set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET environment variables.');
+  console.warn('You can copy .env.example to .env and fill in your GitHub OAuth app credentials.');
+}
 
 // Security middleware
 app.use(helmet({
@@ -24,7 +40,8 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "blob:"],
+      imgSrc: ["'self'", "data:", "blob:", "*.githubusercontent.com", "github.com"],
+      connectSrc: ["'self'", "wss:", "ws:"],
     },
   },
 }));
@@ -39,9 +56,29 @@ app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : true,
+  origin: process.env.NODE_ENV === 'production' ? process.env.APP_URL : true,
   credentials: true
 }));
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-default-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Initialize Passport
+configurePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Add user context to all requests
+app.use(addUserContext);
 
 // Body parsing middleware
 app.use(express.json({ limit: '50mb' }));
@@ -63,8 +100,9 @@ wss.on('connection', (ws) => {
 app.set('wss', wss);
 
 // Routes
-app.use('/api/upload', uploadRoutes);
-app.use('/api/convert', convertRoutes);
+app.use('/auth', authRoutes);
+app.use('/api/upload', optionalAuthentication, uploadRoutes);
+app.use('/api/convert', optionalAuthentication, convertRoutes);
 
 // Root route
 app.get('/', (req, res) => {

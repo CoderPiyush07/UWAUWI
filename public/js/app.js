@@ -2,6 +2,7 @@ class FileConverter {
   constructor() {
     this.uploadedFile = null;
     this.ws = null;
+    this.user = null;
     this.init();
   }
 
@@ -12,6 +13,8 @@ class FileConverter {
     this.setupEventListeners();
     this.setupWebSocket();
     this.setupTheme();
+    this.checkAuthStatus();
+    this.handleAuthCallback();
     console.log('File Converter initialized');
   }
 
@@ -39,6 +42,9 @@ class FileConverter {
 
     // Theme toggle
     document.getElementById('themeToggle').addEventListener('click', this.toggleTheme.bind(this));
+
+    // Authentication events
+    document.getElementById('logoutBtn').addEventListener('click', this.logout.bind(this));
   }
 
   /**
@@ -429,6 +435,187 @@ class FileConverter {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  /**
+   * Check authentication status and update UI
+   */
+  async checkAuthStatus() {
+    try {
+      const response = await fetch('/auth/user', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        
+        if (userData.isAuthenticated) {
+          this.user = userData;
+          this.updateAuthUI(true);
+        } else {
+          this.user = null;
+          this.updateAuthUI(false);
+        }
+      } else {
+        this.user = null;
+        this.updateAuthUI(false);
+      }
+    } catch (error) {
+      console.error('Failed to check auth status:', error);
+      this.user = null;
+      this.updateAuthUI(false);
+    }
+  }
+
+  /**
+   * Update authentication UI based on login status
+   * @param {boolean} isAuthenticated - Whether user is authenticated
+   */
+  updateAuthUI(isAuthenticated) {
+    const authLogin = document.getElementById('authLogin');
+    const authProfile = document.getElementById('authProfile');
+
+    if (isAuthenticated && this.user) {
+      // Show user profile
+      authLogin.style.display = 'none';
+      authProfile.style.display = 'flex';
+
+      // Update user information
+      const userAvatar = document.getElementById('userAvatar');
+      const userName = document.getElementById('userName');
+      const userUsername = document.getElementById('userUsername');
+
+      if (this.user.avatar) {
+        userAvatar.src = this.user.avatar;
+        userAvatar.style.display = 'block';
+      } else {
+        userAvatar.style.display = 'none';
+      }
+
+      userName.textContent = this.user.displayName || this.user.username;
+      userUsername.textContent = `@${this.user.username}`;
+
+      console.log('User authenticated:', this.user.username);
+    } else {
+      // Show login button
+      authLogin.style.display = 'block';
+      authProfile.style.display = 'none';
+      console.log('User not authenticated');
+    }
+  }
+
+  /**
+   * Hide authentication UI completely
+   */
+  hideAuthUI() {
+    const authLogin = document.getElementById('authLogin');
+    const authProfile = document.getElementById('authProfile');
+    
+    authLogin.style.display = 'none';
+    authProfile.style.display = 'none';
+  }
+
+  /**
+   * Handle authentication callback from OAuth
+   */
+  handleAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authStatus = urlParams.get('auth');
+    const error = urlParams.get('error');
+
+    if (authStatus === 'success') {
+      console.log('Authentication successful');
+      // Remove URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Refresh auth status
+      this.checkAuthStatus();
+      // Show success message
+      this.showAuthMessage('Successfully signed in with GitHub!', 'success');
+    } else if (error) {
+      console.error('Authentication error:', error);
+      let errorMessage = 'Authentication failed. Please try again.';
+      
+      switch (error) {
+        case 'auth_failed':
+          errorMessage = 'GitHub authentication failed. Please try again.';
+          break;
+        case 'auth_callback_failed':
+          errorMessage = 'Authentication callback failed. Please try again.';
+          break;
+        case 'auth_required':
+          errorMessage = 'Please sign in to continue.';
+          break;
+        case 'oauth_not_configured':
+          errorMessage = 'GitHub OAuth is not configured. Please check the server configuration.';
+          this.hideAuthUI();
+          break;
+      }
+      
+      this.showAuthMessage(errorMessage, 'error');
+      // Remove URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
+  /**
+   * Show authentication message
+   * @param {string} message - Message to show
+   * @param {string} type - Message type (success, error)
+   */
+  showAuthMessage(message, type) {
+    // Create temporary message element
+    const messageEl = document.createElement('div');
+    messageEl.className = `auth-message auth-message-${type}`;
+    messageEl.textContent = message;
+    messageEl.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: ${type === 'success' ? 'var(--success)' : 'var(--error)'};
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: var(--border-radius-sm);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1001;
+      font-weight: 500;
+    `;
+
+    document.body.appendChild(messageEl);
+
+    // Remove message after 5 seconds
+    setTimeout(() => {
+      if (messageEl.parentNode) {
+        messageEl.parentNode.removeChild(messageEl);
+      }
+    }, 5000);
+  }
+
+  /**
+   * Logout user
+   */
+  async logout() {
+    try {
+      const response = await fetch('/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        this.user = null;
+        this.updateAuthUI(false);
+        this.showAuthMessage('Successfully signed out', 'success');
+        console.log('User logged out successfully');
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      this.showAuthMessage('Failed to sign out. Please try again.', 'error');
+    }
   }
 }
 

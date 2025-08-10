@@ -73,6 +73,98 @@ body {
   margin-bottom: 1rem;
 }
 
+/* Authentication Section */
+.auth-section {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.github-login-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #24292e;
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+  transition: var(--transition);
+  border: 2px solid #24292e;
+}
+
+.github-login-btn:hover {
+  background: #1a1e22;
+  border-color: #1a1e22;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(36, 41, 46, 0.3);
+}
+
+.github-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.auth-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--surface);
+  padding: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.user-username {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.logout-btn {
+  background: var(--error);
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
 .theme-toggle {
   position: absolute;
   top: 1rem;
@@ -480,6 +572,26 @@ body {
     width: 40px;
     height: 40px;
     font-size: 1.2rem;
+  }
+  
+  .auth-profile {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  
+  .user-info {
+    gap: 0.5rem;
+  }
+  
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .github-login-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 }
 
