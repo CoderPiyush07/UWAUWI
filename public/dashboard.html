@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UWAUWI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard">
+    <div class="dashboard-header">
+        <div class="dashboard-nav">
+            <h1>🐾 UWAUWI Dashboard</h1>
+            <div class="user-info">
+                <img id="userAvatar" class="avatar" src="" alt="User Avatar">
+                <span id="userName">Loading...</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-content">
+        <div class="welcome-card">
+            <h2>Welcome back! 🎉</h2>
+            <p>You have successfully authenticated with GitHub. Your profile information is securely stored and you now have access to the UWAUWI platform.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Authentication Status</h3>
+                <div class="stat-value">✅</div>
+                <div class="stat-label">Connected to GitHub</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Account Security</h3>
+                <div class="stat-value">🔒</div>
+                <div class="stat-label">OAuth Protected</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Session Status</h3>
+                <div class="stat-value" id="sessionStatus">Active</div>
+                <div class="stat-label">Current Session</div>
+            </div>
+        </div>
+
+        <div class="welcome-card" style="margin-top: 30px;">
+            <h2>Your GitHub Profile</h2>
+            <div id="profileInfo">
+                <p>Loading your profile information...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load user profile on page load
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/user', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    displayUserProfile(user);
+                } else {
+                    console.error('Failed to load user profile');
+                    // Redirect to login if not authenticated
+                    if (response.status === 401) {
+                        window.location.href = '/';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+
+        function displayUserProfile(user) {
+            // Update header
+            document.getElementById('userName').textContent = user.username;
+            document.getElementById('userAvatar').src = user.avatar_url || '/default-avatar.png';
+            
+            // Update profile info
+            const profileInfo = document.getElementById('profileInfo');
+            profileInfo.innerHTML = `
+                <div style="display: grid; gap: 10px; margin-top: 15px;">
+                    <p><strong>Username:</strong> ${user.username}</p>
+                    <p><strong>Email:</strong> ${user.email || 'Not provided'}</p>
+                    <p><strong>GitHub ID:</strong> ${user.github_id}</p>
+                    <p><strong>Member Since:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+                    <p><strong>Last Updated:</strong> ${new Date(user.updated_at).toLocaleDateString()}</p>
+                </div>
+            `;
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                const response = await fetch('/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/';
+                } else {
+                    console.error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        }
+
+        // Load profile when page loads
+        document.addEventListener('DOMContentLoaded', loadUserProfile);
+
+        // Update session status periodically
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('sessionStatus').textContent = 'Active';
+        }, 30000); // Update every 30 seconds
+    </script>
+</body>
+</html>
