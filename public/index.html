@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UWAUWI - File Converter</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">UWAUWI</h1>
+            <p class="tagline">Image & PDF Converter</p>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                🌙
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <div class="upload-icon">📁</div>
+                        <h2>Drop your files here</h2>
+                        <p>or click to browse</p>
+                        <p class="supported-formats">
+                            <strong>Supported formats:</strong><br>
+                            Images: JPG, PNG, WebP, BMP, GIF, TIFF, HEIC<br>
+                            Documents: PDF
+                        </p>
+                        <p class="file-size-limit">Maximum file size: 50MB</p>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*,.pdf" hidden>
+                </div>
+            </section>
+
+            <!-- File Info Section -->
+            <section class="file-info-section" id="fileInfoSection" style="display: none;">
+                <div class="file-info">
+                    <h3>File Information</h3>
+                    <div class="file-details">
+                        <p><strong>Name:</strong> <span id="fileName"></span></p>
+                        <p><strong>Type:</strong> <span id="fileType"></span></p>
+                        <p><strong>Size:</strong> <span id="fileSize"></span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conversion Options -->
+            <section class="conversion-section" id="conversionSection" style="display: none;">
+                <div class="conversion-options">
+                    <h3>Conversion Options</h3>
+                    
+                    <!-- Output Format Selection (for images) -->
+                    <div class="option-group" id="formatGroup" style="display: none;">
+                        <label for="outputFormat">Output Format:</label>
+                        <select id="outputFormat">
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                            <option value="bmp">BMP</option>
+                            <option value="gif">GIF</option>
+                            <option value="tiff">TIFF</option>
+                        </select>
+                    </div>
+
+                    <!-- Compression Level -->
+                    <div class="option-group">
+                        <label for="compressionLevel">Compression Level:</label>
+                        <select id="compressionLevel">
+                            <option value="low">Low (Best Quality)</option>
+                            <option value="medium" selected>Medium (Balanced)</option>
+                            <option value="high">High (Smallest Size)</option>
+                        </select>
+                    </div>
+
+                    <!-- Convert Button -->
+                    <button class="convert-btn" id="convertBtn">
+                        <span class="btn-text">Start Conversion</span>
+                        <span class="btn-loader" style="display: none;">⏳</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="progress-section" id="progressSection" style="display: none;">
+                <div class="progress-container">
+                    <h3>Processing...</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">Initializing...</p>
+                    <div class="progress-percentage" id="progressPercentage">0%</div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-container">
+                    <h3>Conversion Complete!</h3>
+                    <div class="results-info">
+                        <div class="size-comparison">
+                            <div class="size-item">
+                                <span class="label">Original Size:</span>
+                                <span id="originalSize"></span>
+                            </div>
+                            <div class="size-item">
+                                <span class="label">New Size:</span>
+                                <span id="newSize"></span>
+                            </div>
+                            <div class="size-item compression-ratio">
+                                <span class="label">Compression:</span>
+                                <span id="compressionRatio"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="download-section">
+                        <button class="download-btn" id="downloadBtn">
+                            📥 Download File
+                        </button>
+                        <button class="new-conversion-btn" id="newConversionBtn">
+                            🔄 Convert Another File
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <section class="error-section" id="errorSection" style="display: none;">
+                <div class="error-container">
+                    <h3>❌ Error</h3>
+                    <p class="error-message" id="errorMessage"></p>
+                    <button class="retry-btn" id="retryBtn">Try Again</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 UWAUWI. Built with ❤️ for fast file conversion.</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Processing your file...</p>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
