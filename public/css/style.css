@@ -542,6 +542,50 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+/* Word Counter Button */
+.word-counter-button {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--primary-color);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px var(--shadow);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--transition);
+  z-index: 100;
+  user-select: none;
+  min-width: 80px;
+  text-align: center;
+}
+
+.word-counter-button:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 6px 16px var(--shadow-hover);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.word-counter-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.word-counter-icon {
+  flex-shrink: 0;
+}
+
+.word-counter-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 /* Responsive Design */
 @media (min-width: 640px) {
   .download-section {
@@ -592,6 +636,16 @@ body {
   .github-login-btn {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
+  }
+  
+  .word-counter-button {
+    right: 1rem;
+    padding: 0.75rem;
+    min-width: 60px;
+  }
+  
+  .word-counter-text {
+    font-size: 0.7rem;
   }
 }
 
