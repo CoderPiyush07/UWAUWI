@@ -45,6 +45,9 @@ class FileConverter {
 
     // Authentication events
     document.getElementById('logoutBtn').addEventListener('click', this.logout.bind(this));
+    
+    // Word Counter button
+    document.getElementById('wordCounterButton').addEventListener('click', this.openWordCounter.bind(this));
   }
 
   /**
@@ -616,6 +619,15 @@ class FileConverter {
       console.error('Logout error:', error);
       this.showAuthMessage('Failed to sign out. Please try again.', 'error');
     }
+  }
+
+  /**
+   * Open Word Counter app in new tab
+   */
+  openWordCounter() {
+    // Placeholder URL - replace with actual Word Counter GitHub Pages URL when available
+    const wordCounterUrl = 'https://example.com/word-counter'; // Replace with actual URL
+    window.open(wordCounterUrl, '_blank');
   }
 }
 
